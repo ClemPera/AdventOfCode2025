@@ -19,28 +19,30 @@ fn main() {
 /// - dial: actual state of the dial before rotation
 /// - direction: which direction to turn the dial
 /// - rotation: number of time to rotate the dial
-fn rotate(dial: i16, direction: Direction, rotation: i16) -> Result<i16, i16> {
-    let new_dial = match direction {
+fn rotate(mut dial: i16, direction: Direction, rotation: i16) -> Result<i16, i16> {
+    match direction {
         Direction::LEFT => {
-            if dial - rotation < MIN {
-                dial - rotation + MAX
-            }else{
-                dial - rotation
+            dial = dial - rotation;
+
+            while dial < MIN {
+                dial = dial + MAX;
             }
+            dial
         }
         Direction::RIGHT => {
-            if dial + rotation >= MAX {
-                dial - MAX + rotation
-            }else{
-                dial + rotation
-            }
+            dial = dial + rotation;
+
+            while dial >= MAX {
+                dial = dial - MAX;
+            };
+            dial
         }
     };
 
-    if new_dial < MIN || new_dial > MAX {
-        Err(new_dial)
+    if dial < MIN || dial > MAX {
+        Err(dial)
     }else{
-        Ok(new_dial)
+        Ok(dial)
     }
 }
 

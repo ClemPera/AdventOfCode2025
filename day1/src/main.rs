@@ -1,5 +1,10 @@
 // https://adventofcode.com/2025/day/1
 
+use core::panic;
+use std::fs;
+
+const FILE_PATH: &str = "./input";
+const START: i16 = 50;
 const MIN: i16 = 0;
 const MAX: i16 = 100;
 
@@ -8,9 +13,37 @@ enum Direction {
     RIGHT
 }
 
+impl From<&str> for Direction {
+    fn from(value: &str) -> Self {
+        match value {
+            "L" => Direction::LEFT,
+            "R" => Direction::RIGHT,
+            _ => panic!("Could not parse direction")
+        }
+    }
+}
+
+
 fn main() {
-    let rotate = rotate(99, Direction::RIGHT, 99).unwrap();
-    println!("{rotate:}");
+    let mut count = 0;
+    let mut dial = START;
+
+    let content = fs::read_to_string(FILE_PATH).unwrap();
+    let lines_content: Vec<&str> = content.lines().collect();
+
+    lines_content.into_iter().for_each(|l| {
+        let (direction, rotation) = l.split_at(1);
+        println!("dial : {dial:?} / direction : {direction:?} / rotation: {rotation:?}");
+
+        dial = rotate(dial, direction.into(), rotation.parse().unwrap()).unwrap();
+
+        if dial == 0 {
+            count += 1;
+        }
+        
+    });
+
+    println!("answer: {count}");
 }
 
 /// Rotate the dial and return the result
@@ -90,4 +123,11 @@ fn rotation_tests(){
 
     let dial = rotate(dial, Direction::LEFT, 82).unwrap();
     assert_eq!(dial, 32);
+
+    //Stress tests: 
+    let dial = rotate(0, Direction::LEFT, 550).unwrap();
+    assert_eq!(dial, 50);
+
+    let dial = rotate(0, Direction::RIGHT, 550).unwrap();
+    assert_eq!(dial, 50);
 }

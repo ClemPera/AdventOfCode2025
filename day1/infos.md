@@ -9,7 +9,3 @@ Input has one dial by line from 0 to 99 with direction, you need to start from 5
 - Dial start at 50
 - 99+1 = 0
 - 0-1 = 99
-
-
-## TODO: 
-- handle issues: if rotation < 0 or if > 99

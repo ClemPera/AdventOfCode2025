@@ -20,7 +20,7 @@ fn main() {
     }).collect();
 
     for (from, to) in content_range {
-        println!("from: {from:?} / to: {to:?}");
+        // println!("from: {from:?} / to: {to:?}");
         let mut invalids = find_invalid(from.parse().unwrap(), to.parse().unwrap());
         
         all_invalids.append(&mut invalids);
@@ -42,20 +42,53 @@ fn main() {
 fn find_invalid(from: u64, to: u64) -> Vec<u64> {
     let mut invalids = vec![];
 
+    //Loop into all numbers in range
     for current in from..to+1 {
+        //Convert current to a vector of each chars
         let current_string = current.to_string();
-        
-        //Ignore if leading zeroes is zero (seem useless?)
-        // if current_string.starts_with(|n| n == '0') {
-        //     continue;
-        // }
+        let chars: Vec<char> = current_string.chars().collect();
+        let chars: Vec<String> = chars.into_iter().map(|c| c.to_string()).collect();
 
-        //Split in two equal part
-        let (part1, part2) = current_string.split_at(current_string.len()/2);
+        let mut is_ok = false;
+        let mut divide = 1;
+
+        //Loop until you can't split in more than one chunk
+        while divide < chars.len() {
+            //create chunks with chars
+            let chunks:Vec<&[String]> = chars.chunks(divide).collect();
+            // println!("chunks: {chunks:?}");
+            
+            is_ok = true;
+            let mut old_chunk: Option<String> = None;
+
+            //Loop through all chunks
+            for c in chunks {
+                let chunk = c.join("");
+
+                // println!("merged_chunk: {chunk:?}");
+                // println!("old_chunk: {old_chunk:?}\n");
+
+                match old_chunk {
+                    None => old_chunk = Some(chunk),
+                    Some(ref oc) => {
+                        if chunk == *oc {
+                            old_chunk = Some(chunk);
+                        }else{
+                            is_ok = false;
+                        }
+                    }
+                }
+            }
+
+            // println!("is_ok? {is_ok:?}");
+
+            if is_ok { break };
+
+            divide += 1;
+        }
         
-        //If the two parts are the same, it's invalid
-        if part1 == part2 {
-            // println!("invalid: {current:?}");
+        if is_ok {
+            // println!("invalid: {current:?}.");
             invalids.push(current);
         }
     };
@@ -71,10 +104,10 @@ fn find_invalid_test() {
     assert_eq!(invalids.iter().find(|&&i| i == 22), Some(&22));
 
     let invalids = find_invalid(95, 115);
-    assert_eq!(invalids.iter().count(), 1);
+    assert_eq!(invalids.iter().count(), 2);
 
     let invalids = find_invalid(998, 1012);
-    assert_eq!(invalids.iter().count(), 1);
+    assert_eq!(invalids.iter().count(), 2);
 
     let invalids = find_invalid(1188511880, 1188511890);
     assert_eq!(invalids.iter().count(), 1);
@@ -90,5 +123,13 @@ fn find_invalid_test() {
 
     let invalids = find_invalid(38593856, 38593862);
     assert_eq!(invalids.iter().count(), 1);
+    
+    let invalids = find_invalid(565653, 565659);
+    assert_eq!(invalids.iter().count(), 1);
 
+    let invalids = find_invalid(824824821, 824824827);
+    assert_eq!(invalids.iter().count(), 1);
+
+    let invalids = find_invalid(2121212118, 2121212124);
+    assert_eq!(invalids.iter().count(), 1);
 }

@@ -21,16 +21,89 @@ fn main() {
         }).collect()
     }).collect();
 
-    let accessible_rolls = find_rolls(rolls);
+    let answer = process(rolls);
+    
+    println!("answer: {answer}");
 
-    let sum: usize = accessible_rolls
-        .into_iter()
-        .map(|lines| lines.into_iter().filter(|&c| c == true).count())
-        .sum();
+    //Part 1:
 
-    println!("result = {sum:?}");
+    // let accessible_rolls = find_rolls(rolls);
+
+    // let sum: usize = accessible_rolls
+    //     .into_iter()
+    //     .map(|lines| lines.into_iter().filter(|&c| c == true).count())
+    //     .sum();
+
+    // println!("result = {sum:?}");
 }
 
+/// Process the removal of rolls 
+/// 
+/// # Arguments
+/// - rolls: matrix of all rolls
+/// 
+/// # Returns
+/// The total of all rolls removed
+fn process(mut rolls: Vec<Vec<bool>>) -> u32 {
+    let mut all_removed: u32 = 0;
+
+    loop {
+        let accessible_rolls = find_rolls(rolls.clone());
+        
+        let (new_rolls, removed) = remove(rolls.clone(), accessible_rolls.clone());
+
+        // println!("rolls: {rolls:?}");
+        // println!("accessible_rolls: {accessible_rolls:?}");
+        // println!("new_rolls: {new_rolls:?}");
+        
+        if removed == 0 {
+            break;
+        }
+
+        rolls = new_rolls;
+        all_removed += removed;
+    } 
+
+    all_removed
+}
+
+
+/// Remove accessible rolls
+/// 
+/// # Arguments
+/// - rolls: matrix of all rolls
+/// - accessible_rolls: matrix of all accessible rolls
+/// 
+/// # Returns
+/// - rolls matrix with the accessible rolls removed
+/// - How much rolls have been removed
+fn remove(rolls: Vec<Vec<bool>>, accessible_rolls: Vec<Vec<bool>>) -> (Vec<Vec<bool>>, u32) {
+    let mut removed: u32 = 0;
+    let removed_rolls = rolls.into_iter().enumerate().map(|(x, line)| {
+        line.into_iter().enumerate().map(|(y, roll)| {
+            if roll {
+                if accessible_rolls[x][y] {
+                    removed += 1;
+                    false
+                }else{
+                    true
+                }
+            }else{
+                false
+            }
+        }).collect()
+    }).collect();
+
+    (removed_rolls, removed)
+}
+
+/// Find the rolls that are accessible
+/// 
+/// # Arguments
+/// - rolls: matrix of all rolls
+/// 
+/// # Returns
+/// Matrix of which rolls are accessible
 fn find_rolls(rolls: Vec<Vec<bool>>) -> Vec<Vec<bool>> {
     rolls
         .iter()
@@ -50,6 +123,15 @@ fn find_rolls(rolls: Vec<Vec<bool>>) -> Vec<Vec<bool>> {
         .collect()
 }
 
+/// Return if the roll is accessible or not
+/// 
+/// # Arguments
+/// - rolls: matrix of all rolls
+/// - roll_x: x of roll to check
+/// - roll_y: y of roll to check
+/// 
+/// # Returns
+/// Is roll accessible
 fn is_roll_accessible(rolls: Vec<Vec<bool>>, roll_x: usize, roll_y: usize) -> bool {
     let mut tonari: u32 = 0;
 
@@ -91,52 +173,55 @@ fn is_roll_accessible(rolls: Vec<Vec<bool>>, roll_x: usize, roll_y: usize) -> bo
 
 #[test]
 fn find_rolls_test() {
-    let rolls = vec![
-        vec![ false, false, true, true, false, true, true, false, true, false, ],
-        vec![ true, false, false, false, false, false, false, false, false, false, ],
-        vec![ false, false, false, false, false, false, true, false, false, false, ],
-        vec![ false, false, false, false, false, false, false, false, false, false, ],
-        vec![ true, false, false, false, false, false, false, false, false, true, ],
-        vec![ false, false, false, false, false, false, false, false, false, false, ],
-        vec![ false, false, false, false, false, false, false, false, false, false, ],
-        vec![ true, false, false, false, false, false, false, false, false, false, ],
-        vec![ false, false, false, false, false, false, false, false, false, false, ],
-        vec![ true, false, true, false, false, false, false, false, true, false, ],
+    let rolls: Vec<Vec<bool>> = vec![
+        vec![false, false, true, true, false, true, true, true, true, false],
+        vec![true, true, true, false, true, false, true, false, true, true],
+        vec![true, true, true, true, true, false, true, false, true, true],
+        vec![true, false, true, true, true, true, false, false, true, false],
+        vec![true, true, false, true, true, true, true, false, true, true],
+        vec![false, true, true, true, true, true, true, true, false, true],
+        vec![false, true, false, true, false, true, false, true, true, true],
+        vec![true, false, true, true, true, false, true, true, true, true],
+        vec![false, true, true, true, true, true, true, true, true, false],
+        vec![true, false, true, false, true, true, true, false, true, false],
     ];
-
-    let accessible_rolls = find_rolls(rolls);
-
-    let sum: usize = accessible_rolls
-        .into_iter()
-        .map(|lines| lines.into_iter().filter(|&c| c == true).count())
-        .sum();
-
-    assert_eq!(sum, 13);
-
-
-
-    let rolls = vec![
-        vec![ true, false, true, true, false, true, true, false, true, false, ],
-        vec![ true, false, false, false, false, false, false, false, false, false, ],
-        vec![ false, false, false, false, false, false, true, false, true, true, ],
-        vec![ false, false, false, false, false, false, false, false, false, true, ],
-        vec![ true, false, false, true, false, false, false, false, false, true, ],
-        vec![ false, false, false, false, false, false, false, false, false, false, ],
-        vec![ false, false, false, false, false, false, false, false, false, false, ],
-        vec![ true, false, false, false, false, false, false, false, false, true, ],
-        vec![ false, false, false, false, false, false, false, false, true, true, ],
-        vec![ true, false, true, false, false, false, false, false, true, true, ],
-    ];
-
-    let accessible_rolls = find_rolls(rolls);
     
-    // println!("accessible_rolls: {accessible_rolls:?}");
+    let all_removed = process(rolls);
 
-    let sum: usize = accessible_rolls
-        .into_iter()
-        .map(|lines| lines.into_iter().filter(|&c| c == true).count())
-        .sum();
+    assert_eq!(all_removed, 43);
 
 
-    assert_eq!(sum, 20);
+    //Part 1 tests: 
+
+    // let sum: usize = accessible_rolls
+    //     .into_iter()
+    //     .map(|lines| lines.into_iter().filter(|&c| c == true).count())
+    //     .sum();
+
+    // assert_eq!(sum, 13);
+
+    // let rolls = vec![
+    //     vec![ true, false, true, true, false, true, true, false, true, false, ],
+    //     vec![ true, false, false, false, false, false, false, false, false, false, ],
+    //     vec![ false, false, false, false, false, false, true, false, true, true, ],
+    //     vec![ false, false, false, false, false, false, false, false, false, true, ],
+    //     vec![ true, false, false, true, false, false, false, false, false, true, ],
+    //     vec![ false, false, false, false, false, false, false, false, false, false, ],
+    //     vec![ false, false, false, false, false, false, false, false, false, false, ],
+    //     vec![ true, false, false, false, false, false, false, false, false, true, ],
+    //     vec![ false, false, false, false, false, false, false, false, true, true, ],
+    //     vec![ true, false, true, false, false, false, false, false, true, true, ],
+    // ];
+
+    // let accessible_rolls = find_rolls(rolls);
+    
+    // // println!("accessible_rolls: {accessible_rolls:?}");
+
+    // let sum: usize = accessible_rolls
+    //     .into_iter()
+    //     .map(|lines| lines.into_iter().filter(|&c| c == true).count())
+    //     .sum();
+
+
+    // assert_eq!(sum, 20);
 }

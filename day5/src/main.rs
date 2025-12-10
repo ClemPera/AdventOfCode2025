@@ -20,11 +20,37 @@ fn main() {
     
     let ids: Vec<&str> = ids.split("\n").collect();
     let ids: Vec<u64> = ids.into_iter().map(|s| s.parse().unwrap()).collect();
+
+    //todo: fix ranges, issue: range is 
+
     
     let result= find_fresh(ids, ranges).iter().count();
     
     println!("{result}");
 
+}
+
+fn merge_range(r1: Vec<u64>, r2: Vec<u64>) -> Vec<u64> {
+    //Need to check if it overlaps before and after
+    
+    let new_range;
+
+    if r1[0] > r2[0] {
+        //e.g. 100, 50
+    }else if r2[1] > r2[1] {
+        //e.g. 100, 50
+        
+    }else if r1[0] < r2[0] {
+        //e.g. 50, 100
+        
+    }else if r1[1] < r2[1] {
+        //e.g. 50, 100
+        
+    }else{
+        
+    }
+
+    new_range
 }
 
 fn find_fresh(ids: Vec<u64>, ranges: Vec<Vec<u64>>) -> Vec<u64>{
@@ -61,7 +87,7 @@ fn find_fresh(ids: Vec<u64>, ranges: Vec<Vec<u64>>) -> Vec<u64>{
 }
 
 #[test]
-fn test() {
+fn find_fresh_test() {
     let ranges: Vec<Vec<u64>> = vec![
         vec![3, 5],
         vec![10, 14],
@@ -81,4 +107,16 @@ fn test() {
     let freshs = find_fresh(ids, ranges);
 
     assert_eq!(freshs, vec![5, 11, 17]);
+}
+
+fn merge_range_test() {
+    let r1 = vec![100, 200];
+    let r2 = vec![150, 250];
+
+    assert_eq!(merge_range(r1, r2), vec![100, 250]);
+    
+    let r1 = vec![100, 200];
+    let r2 = vec![50, 150];
+
+    assert_eq!(merge_range(r1, r2), vec![50, 200]);
 }

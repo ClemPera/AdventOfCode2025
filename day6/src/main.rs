@@ -8,7 +8,7 @@ fn main() {
     let content: Vec<&str> = content.lines().collect();
     
     let calculs = content.last().unwrap();
-    let calculs:Vec<&str> = calculs.split_whitespace().collect();
+    let calculs: Vec<&str> = calculs.split_whitespace().collect();
     
     let (numbers, _) = content.split_at(content.len()-1);
     let numbers: Vec<Vec<&str>> = numbers.into_iter().map(|&s| s.split_whitespace().collect()).collect();

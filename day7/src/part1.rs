@@ -15,43 +15,58 @@ fn main() {
     println!("result: {count}");
 }
 
-fn process(lines: Vec<Vec<&str>>) -> usize {
-    let mut timelines = 0;
-    
+fn process(lines: Vec<Vec<&str>>) -> u32 {
+    let mut count = 0;
+    let mut beam = vec![];
+
     lines.into_iter().for_each(|line| {
-        timelines += match find_on_line(line) {
-            0 => 1,
-            t => t
-        };
+        let (new_beam, add_count) = find_on_line(line, beam.clone());
+
+        count += add_count;
+
+        println!("{beam:?}");
+        beam = new_beam;
     });
 
-    timelines-3
+    count
 }
 
-fn find_on_line(line: Vec<&str>) -> usize {
-    let mut beam = vec![];
+fn find_on_line(line: Vec<&str>, mut beam: Vec<usize>) -> (Vec<usize>, u32) {
+    let mut count = 0;
 
     line.into_iter().enumerate().for_each(|(k, c)| {
         match c {
             "." => {}, //Skip
-            "S" => {},
+            "S" => {
+                if beam.len() != 0 {
+                    panic!("beam should be zero when starting");
+                }
+        
+                beam.push(k);
+            },
             "^" => {
-                beam = split(beam.clone(), k);
+                let new_beam = split(beam.clone(), k);
+                if new_beam != beam {
+                    count += 1;
+                }
+
+                beam = new_beam;
             },
             e => panic!("beam has a not handled char: {e}")
         }
     });
 
-    beam.dedup();
-
-    beam.iter().count()
+    (beam, count)
 }
 
 fn split(mut beam: Vec<usize>, doko: usize) -> Vec<usize> {
-    beam = beam.into_iter().filter(|&s| s != doko).collect();
-    beam.push(doko-1);
-    beam.push(doko+1);
+    if beam.iter().any(|&b| b == doko) {
+        beam = beam.into_iter().filter(|&s| s != doko).collect();
+        beam.push(doko-1);
+        beam.push(doko+1);
+    }
 
+    beam.dedup();
     beam
 }
 
@@ -64,7 +79,7 @@ fn process_test() {
         vec![".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
         vec![".", ".", ".", ".", ".", ".", "^", ".", "^", ".", ".", ".", ".", ".", "."],
         vec![".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
-        vec![".", ".", ".", ".", ".", ".", ".", "^", ".", "^", ".", ".", ".", ".", "."],
+        vec![".", ".", ".", ".", ".", "^", ".", "^", ".", "^", ".", ".", ".", ".", "."],
         vec![".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
         vec![".", ".", ".", ".", "^", ".", "^", ".", ".", ".", "^", ".", ".", ".", "."],
         vec![".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
@@ -76,5 +91,5 @@ fn process_test() {
         vec![".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
     ];
 
-    assert_eq!(process(lines), 40);
+    assert_eq!(process(lines), 21);
 }

@@ -57,6 +57,7 @@ fn main() {
 
 /// Returns the buttons for the fewest press
 fn find_fewest_press(lights: Vec<bool>, buttons: Vec<Vec<usize>>) -> Vec<Vec<usize>> {
+    //TODO: make that the function can receive a Fn and handle the cases inside
     let all_buttons_possibilities: Vec<Vec<Vec<usize>>> = cext::iter::all_order_permutations(buttons); 
     println!("all_buttons_possibilities: {all_buttons_possibilities:?}");
     let mut best_press_possibility: Vec<Vec<usize>> = vec![];
